@@ -2,7 +2,6 @@ package com.github.minemaniauk.MMPartyGamesExtensions;
 
 import com.github.smuddgge.squishyconfiguration.ConfigurationFactory;
 import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
-import me.wazup.partygames.PartyGames;
 import me.wazup.partygames.events.PGArenaFinishEvent;
 import me.wazup.partygames.events.PGArenaStartEvent;
 import me.wazup.partygames.events.PGArenaStopEvent;
@@ -10,10 +9,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Debug;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public final class MMPartyGamesExtensions extends JavaPlugin implements Listener {
 
@@ -47,29 +47,36 @@ public final class MMPartyGamesExtensions extends JavaPlugin implements Listener
         var newHandler = new ArenaHandler(event.getName().toLowerCase());
         arenaHandlers.add(newHandler);
         getServer().getPluginManager().registerEvents(newHandler, this);
-        getLogger().warning(PartyGames.getInstance().arenas.keySet().toString());
     }
 
     @EventHandler
     public void arenaStop(PGArenaStopEvent event) {
-        for  (ArenaHandler arenaHandler : arenaHandlers) {
-            if (arenaHandler.arenaName.equals(event.getName())) {
-                arenaHandlers.remove(arenaHandler);
-                HandlerList.unregisterAll(arenaHandler);
-            }
-        }
+        RemoveArenaHandler(event.getName());
     }
 
     @EventHandler
     public void onArenaFinish(PGArenaFinishEvent event) {
-        for  (ArenaHandler arenaHandler : arenaHandlers) {
-            if (arenaHandler.arenaName.equals(event.getName())) {
-                arenaHandlers.remove(arenaHandler);
+        RemoveArenaHandler(event.getName());
+    }
+
+    public void RemoveArenaHandler(String arenaName) {
+
+        arenaName = arenaName.toLowerCase();
+
+        Iterator<ArenaHandler> iterator = arenaHandlers.iterator();
+
+        while (iterator.hasNext()) {
+            ArenaHandler arenaHandler = iterator.next();
+
+            if (Objects.equals(arenaHandler.arenaName, arenaName)) {
+
                 HandlerList.unregisterAll(arenaHandler);
+                iterator.remove();
+
+                break;
             }
         }
     }
-
     @Override
     public void onDisable() {
         // Plugin shutdown logic
