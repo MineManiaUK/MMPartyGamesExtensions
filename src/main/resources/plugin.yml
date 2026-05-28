@@ -1,4 +1,6 @@
-name: MMPartyGamesExtentions
+name: MMPartyGamesExtensions
 version: '1.0-SNAPSHOT'
-main: com.github.minemaniauk.MMPartyGamesExtentions.MMPartyGamesExtentions
+main: com.github.minemaniauk.MMPartyGamesExtensions.MMPartyGamesExtensions
 api-version: '1.21'
+depend:
+  - PartyGames
