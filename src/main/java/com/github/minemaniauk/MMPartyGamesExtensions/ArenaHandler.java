@@ -42,7 +42,7 @@ public class ArenaHandler implements Listener {
         LinkedHashMap<String, Integer> gamesToBePlayedTemp = new LinkedHashMap<>();
 
         while(arena.minigamesToPlay.size() != gamesToBePlayedTemp.size()){
-            Map.Entry<String, Integer> game = null;
+            
 
             //get the opposite side of the range
             int score = Math.abs(intensityScore - 10);
@@ -60,20 +60,20 @@ public class ArenaHandler implements Listener {
 
             while(appropriateGames.isEmpty()){
                 appropriateGames =  new ArrayList<>();
-                for(Map.Entry<String, Integer> game1  : this.gamesToBePlayed.entrySet()) {
+                for(Map.Entry<String, Integer> game  : this.gamesToBePlayed.entrySet()) {
                     // group up games of appropriate intensity values and pick them
                     //if no games are selected counter increases increasing the range for allowed games
-                    if(game1.getValue() >= score-counter & game1.getValue() <= score + counter){
+                    if(game.getValue() >= score-counter & game.getValue() <= score + counter){
                         appropriateGames.add(game1.getKey());
                     }
                 }
                 counter+=1;
 
-            }
-
-            intensityScore = Math.floorDiv((intensityScore + game.getValue()), 2);
+            }         
 
             String randomGame = appropriateGames.get(new Random().nextInt(appropriateGames.size()));
+
+            intensityScore = Math.floorDiv((intensityScore +  weightsConfig.getInteger("game-weights." + randomGame)), 2);
 
             gamesToBePlayedTemp.put(randomGame, gamesToBePlayedTemp.get(randomGame));
             gamesToBePlayed.remove(randomGame);
