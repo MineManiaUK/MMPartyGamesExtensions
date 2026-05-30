@@ -38,7 +38,54 @@ public class ArenaHandler implements Listener {
 
     public void SortGames() {
         //TODO spread high stress games from low stress games
+        //get the weight of the fisrt game (hopefully)
+        Integer intenstyScore = weightsConfig.getInteger("game-weights." + this.arena.currentMinigame.getActualName().toLowerCase().replace(" ", ""));
+        LinkedHashMap<String, Integer> gamesToBePlayedTemp = new LinkedHashMap<>();
 
+
+
+        while(arena.minigamesToPlay.size() != gamesToBePlayedTemp.size()){
+            Map.Entry<String, Integer> game = null;
+            
+            
+            
+            //get the opersit side of the range
+            int score = Math.abs(intenstyScore-10);
+
+            //these if stamets make push it more to the extrame values otherwise intensity 1 and 10 games will always be last
+            if(score>5 & score!=9){
+                score+=2;
+            }
+            else if (score<5 & score!=1){
+                score-=2;
+            }
+
+            List<Object> appropraiteGames = new ArrayList<>();
+            int counter=1;
+
+            while(appropraiteGames.size()==0){
+                appropraiteGames =  new ArrayList<>();
+                for(Map.Entry<String, Integer> game1  : this.gamesToBePlayed.entrySet()) {
+                    // group up games of appropte intesity values and pick them
+                    //if no games are seclected counter increses incresing the range for allowed games
+                    if(game1.getValue() >= score-counter & game1.getValue() <= score + counter){
+                        appropraiteGames.add(game1);
+                    }
+                }
+                counter+=1;
+                
+                object[] test = appropraiteGames;
+
+                MiniGame random_game = (MiniGame)test[Utils.random.nextInt(test.length)];
+
+            }
+            intenstyScore = Math.floorDiv((intenstyScore+game.getValue()),2);
+
+            gamesToBePlayedTemp.add(random_game);
+            gamesToBePlayed.remove(random_game);
+        }
+
+        gamesToBePlayed = gamesToBePlayedTemp;
 
         Bukkit.getLogger().warning("Game order = " + gamesToBePlayed.toString());
 
