@@ -64,7 +64,7 @@ public class ArenaHandler implements Listener {
                     // group up games of appropriate intensity values and pick them
                     //if no games are selected counter increases increasing the range for allowed games
                     if(game.getValue() >= score-counter & game.getValue() <= score + counter){
-                        appropriateGames.add(game1.getKey());
+                        appropriateGames.add(game.getKey());
                     }
                 }
                 counter+=1;
@@ -75,7 +75,7 @@ public class ArenaHandler implements Listener {
 
             intensityScore = Math.floorDiv((intensityScore +  weightsConfig.getInteger("game-weights." + randomGame)), 2);
 
-            gamesToBePlayedTemp.put(randomGame, gamesToBePlayedTemp.get(randomGame));
+            gamesToBePlayedTemp.put(randomGame, gamesToBePlayed.get(randomGame));
             gamesToBePlayed.remove(randomGame);
         }
 
