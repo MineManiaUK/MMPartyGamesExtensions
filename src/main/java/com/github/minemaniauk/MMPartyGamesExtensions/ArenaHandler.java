@@ -37,49 +37,54 @@ public class ArenaHandler implements Listener {
     }
 
     public void SortGames() {
-        //get the weight of the first game (hopefully)
-        int intensityScore = weightsConfig.getInteger("game-weights." + this.arena.currentMinigame.getActualName().toLowerCase().replace(" ", ""));
         LinkedHashMap<String, Integer> gamesToBePlayedTemp = new LinkedHashMap<>();
+        List<String> gamesHighestValues = new LinkedHashMap<>();
+        List<String> normalGames = new LinkedHashMap<>();
 
-        while(arena.minigamesToPlay.size() != gamesToBePlayedTemp.size()){
-            
+        Integer sets = Math.floorDiv(gamesToBePlayed.size(), 3);
+        Intiger highest_value = 10;
+        Intiger counter = 0;
 
-            //get the opposite side of the range
-            int score = Math.abs(intensityScore - 10);
-
-            //these if statements make push it more to the extreme values otherwise intensity 1 and 10 games will always be last
-            if(score>5 & score!=9){
-                score+=2;
-            }
-            else if (score<5 & score!=1){
-                score-=2;
-            }
-
-            List<String> appropriateGames = new ArrayList<>();
-            int counter=1;
-
-            while(appropriateGames.isEmpty()){
-                appropriateGames =  new ArrayList<>();
-                for(Map.Entry<String, Integer> game  : this.gamesToBePlayed.entrySet()) {
-                    // group up games of appropriate intensity values and pick them
-                    //if no games are selected counter increases increasing the range for allowed games
-                    if(game.getValue() >= score-counter & game.getValue() <= score + counter){
-                        appropriateGames.add(game.getKey());
+        //create a list of the highest value games 
+        //in a normal match of 22 there are 7 high value games found 
+        while(counter < sets){
+            for(Map.Entry<String, Integer> game  : this.gamesToBePlayed.entrySet()) {             
+                    if(game.getValue() == highest_value){
+                        gamesHighestValues.add(game.getKey());
+                        counter+=1;
+                        if(counter==sets){
+                            break;
+                        }
                     }
-                }
+            }
+            highest_value-=1;
+        }
+
+        //create a list of all other games
+        for(Map.Entry<String, Integer> game  : this.gamesToBePlayed.entrySet()) {
+            if(!gamesHighestValues.contains(game.getKey())){
+                normalGames.add(game.getKey());
+            }
+        }
+
+        //counter being used to keep track of where high value games should be placed
+        counter=1;
+        for (int i = 1; i <= gamesToBePlayed.size()  ; i = i ++) {
+            if((3*counter)-1 == i && counter<=sets){
                 counter+=1;
-
-            }         
-
-            String randomGame = appropriateGames.get(new Random().nextInt(appropriateGames.size()));
-
-            intensityScore = Math.floorDiv((intensityScore +  weightsConfig.getInteger("game-weights." + randomGame)), 2);
-
-            gamesToBePlayedTemp.put(randomGame, gamesToBePlayed.get(randomGame));
-            gamesToBePlayed.remove(randomGame);
+                String randomGame = gamesHighestValues.get(new Random().nextInt(gamesHighestValues.size()));
+                gamesHighestValues.remove(randomGame);
+                gamesToBePlayedTemp.put(randomGame, gamesToBePlayed.get(randomGame));
+            }
+            else{
+                String randomGame = normalGames.get(new Random().nextInt(normalGames.size()));
+                normalGames.remove(randomGame);
+                gamesToBePlayedTemp.put(randomGame, gamesToBePlayed.get(randomGame));
+            }
         }
 
         gamesToBePlayed = gamesToBePlayedTemp;
+
 
         Bukkit.getLogger().warning("Game order = " + gamesToBePlayed.toString());
 
