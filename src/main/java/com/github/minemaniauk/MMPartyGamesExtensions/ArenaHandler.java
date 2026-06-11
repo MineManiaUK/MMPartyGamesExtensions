@@ -38,12 +38,12 @@ public class ArenaHandler implements Listener {
 
     public void SortGames() {
         LinkedHashMap<String, Integer> gamesToBePlayedTemp = new LinkedHashMap<>();
-        List<String> gamesHighestValues = new LinkedHashMap<>();
-        List<String> normalGames = new LinkedHashMap<>();
+        List<String> gamesHighestValues = new ArrayList<>();
+        List<String> normalGames = new ArrayList<>();
 
-        Integer sets = Math.floorDiv(gamesToBePlayed.size(), 3);
-        Intiger highest_value = 10;
-        Intiger counter = 0;
+        int sets = Math.floorDiv(gamesToBePlayed.size(), 3);
+        int highest_value = 10;
+        int counter = 0;
 
         //create a list of the highest value games 
         //in a normal match of 22 there are 7 high value games found 
@@ -69,7 +69,7 @@ public class ArenaHandler implements Listener {
 
         //counter being used to keep track of where high value games should be placed
         counter=1;
-        for (int i = 1; i <= gamesToBePlayed.size()  ; i = i ++) {
+        for (int i = 1; i <= gamesToBePlayed.size()  ; i++) {
             if((3*counter)-1 == i && counter<=sets){
                 counter+=1;
                 String randomGame = gamesHighestValues.get(new Random().nextInt(gamesHighestValues.size()));
