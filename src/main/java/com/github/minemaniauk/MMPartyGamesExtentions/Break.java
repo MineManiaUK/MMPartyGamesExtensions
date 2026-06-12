@@ -277,32 +277,11 @@ public class Break extends MiniGame {
                 task = null;
             }
 
-            for(int i = 0; i < alive.size(); i++) if(i < topPlayers.length) topPlayers[i] = alive.get(i);
+            
 
             PartyGamesAPI.sendRoundConclusion(this.arena, this.topPlayers);
 
-            String winnerName = topPlayers[0];
-            final Player winner = Bukkit.getPlayer(winnerName);
-
-            task = new BukkitRunnable() {
-                int timer = 5;
-                boolean fireworks = false;
-                public void run() {
-                    timer--;
-
-                    fireworks = !fireworks;
-                    if(fireworks) {
-                        Utils.fireWorkEffect(winner, true);
-                    }
-
-                    if(timer == 0) {
-                        for(Player p: arena.getPlayers()) {
-                            PartyGamesAPI.MakeSpectator(p, false);
-                        }
-                        arena.finishCurrentMinigame(topPlayers);
-                    }
-                }
-            }.runTaskTimer(plugin, 0, 20L);
+            
         }
 
         @EventHandler(priority = EventPriority.HIGH)
