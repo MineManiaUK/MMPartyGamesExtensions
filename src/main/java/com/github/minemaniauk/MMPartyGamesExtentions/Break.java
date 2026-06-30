@@ -280,6 +280,7 @@ public class Break extends MiniGame {
             
 
             PartyGamesAPI.sendRoundConclusion(this.arena, this.topPlayers);
+            this.arena.finishCurrentMinigame(this.topPlayers);
 
             
         }
