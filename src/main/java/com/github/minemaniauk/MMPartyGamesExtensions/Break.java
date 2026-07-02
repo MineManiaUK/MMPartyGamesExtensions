@@ -45,10 +45,17 @@ public class Break extends MiniGame {
     PartyGames plugin;
 
 
+    
+
     public Break(PartyGames var1) {
         this.plugin = var1;
         
     }
+
+    
+    // public void onEnable() {
+    //     plugin.registerMinigame(new Break(this.plugin));
+    // }
 
     @Override
     public Material getRepresentingMaterial() {
@@ -270,8 +277,12 @@ public class Break extends MiniGame {
                 task = null;
             }
 
+            
+
             PartyGamesAPI.sendRoundConclusion(this.arena, this.topPlayers);
             this.arena.finishCurrentMinigame(this.topPlayers);
+
+            
         }
 
         @EventHandler(priority = EventPriority.HIGH)
