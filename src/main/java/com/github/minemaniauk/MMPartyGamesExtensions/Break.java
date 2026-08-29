@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
+import me.wazup.partygames.minigames.HorseRace;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -13,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import me.wazup.partygames.utils.XMaterial;
 
@@ -21,8 +23,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -43,23 +48,21 @@ public class Break extends MiniGame {
     String[] tutorialMessages;
     int roundDuration;
     PartyGames plugin;
-
-
-    
+    List<ItemStack> playerItems;
 
     public Break(PartyGames var1) {
         this.plugin = var1;
-        
+
     }
 
-    
+
     // public void onEnable() {
     //     plugin.registerMinigame(new Break(this.plugin));
     // }
 
     @Override
     public Material getRepresentingMaterial() {
-        return XMaterial.DIAMOND_SHOVEL.parseMaterial();
+        return Material.CLOCK;
     }
 
 
@@ -68,7 +71,7 @@ public class Break extends MiniGame {
         return "Break";
     }
 
-    
+
     public String getName() {
         return "Break";
     }
@@ -113,7 +116,7 @@ public class Break extends MiniGame {
         if(!config.contains("Tutorial-Messages")) {
             config.set("Tutorial-Messages", Arrays.asList(new String[] {
                     "&2 --------- &aBreak &2--------- ",
-                    "- this is half time 5min break",
+                    "- this is half time break",
                     ""
             }));
             save = true;
@@ -129,20 +132,16 @@ public class Break extends MiniGame {
             save = true;
         }
 
-
-        // 5 minuets
+        // 4 minuets
         if(!config.contains("Round-Duration")) {
-            config.set("Round-Duration", 300);
+            config.set("Round-Duration", 240);
             save = true;
         }
-
-
-
         if(save) saveConfiguration(config);
 
         this.displayName = Utils.colorize(config.getString("Display-Name"));
         this.coinsPerWin = config.getInt("Coins-Per-Minigame-Win");
-        
+
 
         List<String> temp = config.getStringList("Tutorial-Messages");
         tutorialMessages = new String[temp.size()];
@@ -155,10 +154,7 @@ public class Break extends MiniGame {
                 maps.put(mapName.toLowerCase(), new BreakMap(mapName, cuboid, spawnpoint));
             }
         }
-
-
         roundDuration = config.getInt("Round-Duration");
-
     }
 
     @Override
@@ -168,35 +164,24 @@ public class Break extends MiniGame {
     }
 
     private class BreakMap extends MiniGameMap implements Listener {
-
         Cuboid mainCuboid;
-        
         Location spawnpoint;
-
         ArrayList<String> alive;
         String[] topPlayers;
-
         HashMap<Location, BlockState> rollback;
-
         BukkitTask task;
-
         boolean allowBreaking;
 
         public BreakMap(String name, Cuboid mainCuboid, Location spawnpoint) {
             this.name = name;
             this.mainCuboid = mainCuboid;
             this.spawnpoint = spawnpoint;
-
             alive = new ArrayList<String>();
             topPlayers = new String[3];
-
             rollback = new HashMap<Location, BlockState>();
-
             allowBreaking = false;
-
             Bukkit.getPluginManager().registerEvents(this, plugin);
         }
-
         public boolean isSetup() {
             return  spawnpoint != null;
         }
@@ -209,27 +194,28 @@ public class Break extends MiniGame {
                 alive.add(p.getName());
             }
 
+            for(Player var8 : arena.getPlayers()) {
+                ItemStack rod = new ItemStack(Material.FISHING_ROD);
+                rod.addEnchantment(Enchantment.LURE, 3);
+                rod.addEnchantment(Enchantment.LUCK_OF_THE_SEA, 3);
+                rod.addEnchantment(Enchantment.UNBREAKING, 3);
+                rod.getItemMeta().setUnbreakable(true);
+                var8.getInventory().addItem(rod);
+            }
             for(Player p: arena.getSpectators()) p.teleport(spawnpoint);
-
             startTask();
         }
 
         public void cancel(boolean immediate) {
             allowBreaking = false;
-
             alive.clear();
-
             arena = null;
-
             PartyGamesAPI.rollback(rollback, immediate);
-
             mainCuboid.clearEntities();
-
             if(task != null) {
                 task.cancel();
                 task = null;
             }
-
         }
 
         public void leave(Player p) {
@@ -247,70 +233,62 @@ public class Break extends MiniGame {
                 int breakingTimer = 1;
                 int timer = roundDuration;
                 public void run() {
-
                     if(breakingTimer > 0) {
                         breakingTimer--;
                     } else {
-
                         for(Player p: arena.getPlayers()) {
                             p.setLevel(timer);
                             if(alive.contains(p.getName())) {
-                                
+
                             }
                         }
-
                         timer--;
                         if(timer == 0) {
                             finish();
                         }
                     }
-
                 }
             }.runTaskTimer(plugin, 40L, 20L);
         }
-
-        
 
         private void finish() {
             if(task != null) {
                 task.cancel();
                 task = null;
             }
-
-            
-
             PartyGamesAPI.sendRoundConclusion(this.arena, this.topPlayers);
             this.arena.finishCurrentMinigame(this.topPlayers);
-
-            
         }
 
         @EventHandler(priority = EventPriority.HIGH)
         public void onBlockBreakEvent(BlockBreakEvent e) {
             Player p = e.getPlayer();
-            
+
         }
 
         @EventHandler
         public void onProjectileHitEvent(ProjectileHitEvent e) {
 
-            BlockIterator bi = new BlockIterator(e.getEntity().getWorld(), e.getEntity().getLocation().toVector(), e.getEntity().getVelocity().normalize(), 0.0D, 4);
-            Block hit = null;
-            while (bi.hasNext()) {
-                hit = bi.next();
-                if (!hit.getType().equals(Material.AIR)) {
-                    if(mainCuboid.contains(hit.getLocation()) && !rollback.containsKey(hit.getLocation())) {
-                        rollback.put(hit.getLocation(), hit.getState());
-                        hit.setType(Material.AIR);
-                    }
-                    break;
-                }
+        }
+
+        @EventHandler
+        public void onPlayerDropItem(PlayerDropItemEvent var1) {
+            if (arena.getPlayers().contains(var1.getPlayer())) {
+                var1.setCancelled(false);
             }
+
+        }
+
+        @EventHandler
+        public void onPlayerPickupItem(PlayerPickupItemEvent var1) {
+            if (arena.getPlayers().contains(var1.getPlayer())) {
+                var1.setCancelled(false);
+            }
+
         }
 
         public void handlePlayerInteractEvent(PlayerInteractEvent e) {
-            Player p = e.getPlayer();
-
+            e.setCancelled(false);
         }
         public void handleEntityDamageByEntityEvent(EntityDamageByEntityEvent e) {}
 
