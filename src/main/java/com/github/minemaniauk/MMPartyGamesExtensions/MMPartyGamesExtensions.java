@@ -69,7 +69,7 @@ public final class MMPartyGamesExtensions extends JavaPlugin implements Listener
 
     @EventHandler
     public void arenaStart(PGArenaStartEvent event) {
-        var newHandler = new ArenaHandler(event.getName().toLowerCase());
+        var newHandler = new ArenaHandler(event.getName(), pg);
         arenaHandlers.add(newHandler);
         getServer().getPluginManager().registerEvents(newHandler, this);
     }
