@@ -29,7 +29,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -466,6 +468,15 @@ public class HorseRaceV2 extends MiniGame {
                 var1.setCancelled(false);
             }
 
+        }
+
+        @EventHandler
+        public void onHorseDamage(EntityDamageEvent event) {
+            if (event.getEntity() instanceof Horse) {
+                if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
+                    event.setCancelled(true);
+                }
+            }
         }
 
         public void handleEntityDamageByEntityEvent(EntityDamageByEntityEvent var1) {
