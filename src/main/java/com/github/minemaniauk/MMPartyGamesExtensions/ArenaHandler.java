@@ -18,7 +18,7 @@ import java.util.*;
 public class ArenaHandler implements Listener {
 
     public final String arenaName;
-    public final Arena arena.toLowerCase();
+    public final Arena arena;
     public Configuration weightsConfig;
     public Configuration mainConfig;
     public Plugin partygames;
@@ -32,7 +32,7 @@ public class ArenaHandler implements Listener {
     public ArenaHandler(String arenaName, Plugin pg) {
 
         this.partygames = pg;
-        this.arenaName = arenaName;
+        this.arenaName = arenaName.toLowerCase();
         this.arena = PartyGames.getInstance().arenas.get(arenaName.toLowerCase());
         this.weightsConfig = MMPartyGamesExtensions.getInstance().getGameWeightsConfig();
         this.mainConfig = MMPartyGamesExtensions.getInstance().getMainConfig();
