@@ -18,7 +18,7 @@ import java.util.*;
 public class ArenaHandler implements Listener {
 
     public final String arenaName;
-    public final Arena arena;
+    public final Arena arena.toLowerCase();
     public Configuration weightsConfig;
     public Configuration mainConfig;
     public Plugin partygames;
