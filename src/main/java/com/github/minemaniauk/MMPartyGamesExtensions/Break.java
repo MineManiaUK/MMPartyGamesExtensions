@@ -281,10 +281,11 @@ public class Break extends MiniGame {
 
         @EventHandler
         public void onPlayerPickupItem(PlayerPickupItemEvent var1) {
-            if (arena.getPlayers().contains(var1.getPlayer())) {
-                var1.setCancelled(false);
+            if(arena!=null) {
+                if (arena.getPlayers().contains(var1.getPlayer())) {
+                    var1.setCancelled(false);
+                }
             }
-
         }
 
         public void handlePlayerInteractEvent(PlayerInteractEvent e) {
