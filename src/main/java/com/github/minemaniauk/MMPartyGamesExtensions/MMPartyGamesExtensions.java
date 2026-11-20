@@ -33,17 +33,16 @@ public final class MMPartyGamesExtensions extends JavaPlugin implements Listener
     public void onEnable() {
         Plugin plugin = Bukkit.getPluginManager().getPlugin("PartyGames");
         if (plugin == null) {
-            getLogger().severe("PartyGames not found!");
+            getLogger().warning("PartyGames is not loaded");
+            getPluginLoader().disablePlugin(this);
+            return;
         }
         else{
-            getLogger().severe("PartyGames is found");
+            getLogger().info("PartyGames is loaded. Starting Extensions...");
             pg = (PartyGames) plugin; 
             pg.registerMinigame(new Break(pg));
             pg.registerMinigame(new HorseRaceV2(pg));
         }
-        
-        
-
 
         // Plugin startup logic
         instance = this;
@@ -54,7 +53,7 @@ public final class MMPartyGamesExtensions extends JavaPlugin implements Listener
                 .setDefaultPath("config.yml");
         this.config.load();
 
-        if (config.get("halfTime-break")==null) {
+        if (config.get("halfTime-break") == null) {
             config.set("halfTime-break", true);
             config.save();
         }

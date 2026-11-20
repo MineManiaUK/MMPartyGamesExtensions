@@ -5,14 +5,12 @@ import me.wazup.partygames.Arena;
 import me.wazup.partygames.PartyGames;
 import me.wazup.partygames.events.PGStartMiniGameEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
-import java.io.InputStreamReader;
 import java.util.*;
 
 public class ArenaHandler implements Listener {
@@ -25,7 +23,7 @@ public class ArenaHandler implements Listener {
     public int maxMinigameRounds;
     public int playedRounds;
     public List<String> gamelist = new ArrayList<>();
-    public String fisrtGame;
+    public String firstGame;
 
     private LinkedHashMap<String, Integer> gamesToBePlayed = new LinkedHashMap<>();
 
@@ -33,17 +31,21 @@ public class ArenaHandler implements Listener {
 
         this.partygames = pg;
         this.arenaName = arenaName.toLowerCase();
-        this.arena = PartyGames.getInstance().arenas.get(arenaName.toLowerCase());
+        this.arena = PartyGames.getInstance().arenas.get(this.arenaName);
+
+        if (this.arena == null) {
+            Bukkit.getLogger().warning(
+                    "Could not find arena: " + this.arenaName
+            );
+
+            MMPartyGamesExtensions.getInstance()
+                    .RemoveArenaHandler(this.arenaName);
+        }
+
         this.weightsConfig = MMPartyGamesExtensions.getInstance().getGameWeightsConfig();
         this.mainConfig = MMPartyGamesExtensions.getInstance().getMainConfig();
         this.playedRounds=1;
-        this.fisrtGame = arena.currentMinigame.getActualName();
-
-        if (this.arena == null) {
-            Bukkit.getLogger().warning("Tried the create arena Arena Handler but could not find arena in PG plugin");
-            MMPartyGamesExtensions.getInstance().RemoveArenaHandler(arenaName.toLowerCase());
-            return;
-        }
+        this.firstGame = arena.currentMinigame.getActualName();
 
         for (String game : arena.registeredMinigames) {
             gamesToBePlayed.put(game, weightsConfig.getInteger("game-weights." + game));
@@ -53,13 +55,13 @@ public class ArenaHandler implements Listener {
         List<String> minigamesToPlay = arena.minigamesToPlay;
         for (String game : arena.registeredMinigames) {
             if(!minigamesToPlay.contains(game)) {
-                this.fisrtGame = game;
+                this.firstGame = game;
             }
         }
 
-        File confFile = new File(pg.getDataFolder() + "/arenas", arenaName + ".yml");
+        File confFile = new File(pg.getDataFolder() + "arenas", arenaName + ".yml");
         YamlConfiguration configFile = YamlConfiguration.loadConfiguration(confFile);
-        this.maxMinigameRounds = ((FileConfiguration)configFile).getInt("max-minigame-rounds");
+        this.maxMinigameRounds = configFile.getInt("max-minigame-rounds");
         Bukkit.getLogger().warning("total rounds = " + maxMinigameRounds);
 
 
@@ -102,7 +104,7 @@ public class ArenaHandler implements Listener {
             int counter = 0;
             while (counter < sets) {
                 for (Map.Entry<String, Integer> game : this.gamesToBePlayed.entrySet()) {
-                    if(l!=1 || !game.getKey().equalsIgnoreCase(this.fisrtGame)) {
+                    if(l!=1 || !game.getKey().equalsIgnoreCase(this.firstGame)) {
                         if (game.getValue() == highest_value && !game.getKey().equalsIgnoreCase("break")) {
                             gamesHighestValues.add(game.getKey());
                             counter += 1;
@@ -117,7 +119,7 @@ public class ArenaHandler implements Listener {
 
             //create a list of all other games
             for (Map.Entry<String, Integer> game : this.gamesToBePlayed.entrySet()) {
-                if(l!=1 || !game.getKey().equalsIgnoreCase(this.fisrtGame)) {
+                if(l!=1 || !game.getKey().equalsIgnoreCase(this.firstGame)) {
                     if (!gamesHighestValues.contains(game.getKey()) && !game.getKey().equalsIgnoreCase("break")) {
                         normalGames.add(game.getKey());
                     }

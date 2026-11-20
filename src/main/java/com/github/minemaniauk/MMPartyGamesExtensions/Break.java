@@ -6,24 +6,21 @@ import java.util.HashMap;
 import java.util.List;
 
 
-import me.wazup.partygames.minigames.HorseRace;
+import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import me.wazup.partygames.utils.XMaterial;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -31,10 +28,8 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.util.BlockIterator;
 import me.wazup.partygames.utils.Utils;
 
-import me.wazup.partygames.utils.Enums.PlayCounter;
 import me.wazup.partygames.utils.Cuboid;
 import me.wazup.partygames.PartyGamesAPI;
 import me.wazup.partygames.PartyGames;
@@ -111,6 +106,7 @@ public class Break extends MiniGame {
         maps = new HashMap<String, MiniGameMap>();
 
         FileConfiguration config = getConfiguration();
+        Configuration extensionsConfig = MMPartyGamesExtensions.getInstance().getMainConfig();
 
         boolean save = false;
         if(!config.contains("Tutorial-Messages")) {
@@ -133,11 +129,10 @@ public class Break extends MiniGame {
         }
 
         // 4 minuets
-        if(!config.contains("Round-Duration")) {
-            config.set("Round-Duration", 240);
-            save = true;
+        if(!extensionsConfig.getKeys().contains("break-length")) {
+            config.set("break-length", 240);
+            extensionsConfig.save();
         }
-        if(save) saveConfiguration(config);
 
         this.displayName = Utils.colorize(config.getString("Display-Name"));
         this.coinsPerWin = config.getInt("Coins-Per-Minigame-Win");
@@ -154,7 +149,7 @@ public class Break extends MiniGame {
                 maps.put(mapName.toLowerCase(), new BreakMap(mapName, cuboid, spawnpoint));
             }
         }
-        roundDuration = config.getInt("Round-Duration");
+        roundDuration = extensionsConfig.getInteger("break-length", 240);
     }
 
     @Override
